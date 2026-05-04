@@ -138,7 +138,7 @@ def _inventory_rows(base_dir: Path, queue_rows: List[Dict[str, str]]) -> List[Di
         enriched_rows,
         key=lambda row: (
             {"Repor agora": 0, "Monitorar": 1, "Estável": 2}[row["status"]],
-            int(row["available_units"]),
+            int(row["net_available_units"]),
         ),
     )
 
