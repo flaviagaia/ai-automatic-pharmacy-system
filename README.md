@@ -7,6 +7,8 @@
 - ajudar o farmacêutico a decidir o que precisa de intervenção humana;
 - ajudar a operação a enxergar quais itens do estoque travam a dispensação.
 
+![Demo da central de farmácia com IA](/Users/flaviagaia/Documents/CV_FLAVIA_CODEX/ai-automatic-pharmacy-system/assets/farmacia_ia.jpg)
+
 Em vez de tratar a automação como simples separação de caixas, o projeto assume que uma farmácia inteligente precisa tomar uma decisão segura, explicável e operacionalmente útil antes de liberar um item.
 
 ## O que o sistema faz
