@@ -4,6 +4,7 @@ import unittest
 from pathlib import Path
 
 from src.data_factory import build_sample_dataset
+from src.operations import inventory_status
 from src.pipeline import run_pipeline
 
 
@@ -34,6 +35,11 @@ class AutomaticPharmacyPipelineTestCase(unittest.TestCase):
         self.assertIn("interaction_detected", queue_text)
         self.assertIn("rag_guidance", queue_text)
         self.assertIn("retrieved_titles", queue_text)
+
+    def test_inventory_status_uses_pending_demand(self) -> None:
+        self.assertEqual(inventory_status(available_units=20, reorder_point=10, pending_units=12), "Repor agora")
+        self.assertEqual(inventory_status(available_units=20, reorder_point=10, pending_units=7), "Monitorar")
+        self.assertEqual(inventory_status(available_units=40, reorder_point=10, pending_units=5), "Estável")
 
 
 if __name__ == "__main__":

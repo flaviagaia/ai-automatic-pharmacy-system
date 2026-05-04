@@ -8,6 +8,7 @@ from typing import Dict, List
 import streamlit as st
 
 from src.data_factory import build_sample_dataset
+from src.operations import inventory_status
 from src.pipeline import run_pipeline
 
 APP_TITLE = "Central de Farmácia com IA"
@@ -106,14 +107,6 @@ def _risk_reasons(row: Dict[str, str]) -> List[str]:
     return reasons or ["Sem gatilhos críticos"]
 
 
-def _inventory_status(available_units: int, reorder_point: int) -> str:
-    if available_units <= reorder_point:
-        return "Repor agora"
-    if available_units <= reorder_point * 1.5:
-        return "Monitorar"
-    return "Estável"
-
-
 def _inventory_rows(base_dir: Path, queue_rows: List[Dict[str, str]]) -> List[Dict[str, str]]:
     dataset_info = build_sample_dataset(base_dir)
     inventory = _read_csv(dataset_info["inventory_path"])
@@ -136,8 +129,9 @@ def _inventory_rows(base_dir: Path, queue_rows: List[Dict[str, str]]) -> List[Di
                 "available_units": str(available),
                 "reorder_point": str(reorder_point),
                 "pending_units": str(pending_units),
+                "net_available_units": str(available - pending_units),
                 "review_or_block_count": str(blocked_or_review),
-                "status": _inventory_status(available, reorder_point),
+                "status": inventory_status(available, reorder_point, pending_units),
             }
         )
     return sorted(
@@ -325,6 +319,7 @@ with tabs[1]:
             "Medicamento": row["drug_name"],
             "Status": row["status"],
             "Estoque atual": row["available_units"],
+            "Saldo após demanda": row["net_available_units"],
             "Ponto de reposição": row["reorder_point"],
             "Demanda pendente": row["pending_units"],
             "Prescrições travadas/em revisão": row["review_or_block_count"],

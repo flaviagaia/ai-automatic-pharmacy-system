@@ -271,6 +271,7 @@ Na prática, a interface permite:
 - ver warning farmacêutico
 - acompanhar itens de estoque críticos
 - identificar quantas prescrições estão travadas por item
+- enxergar o **saldo após a demanda pendente**, e não só o estoque bruto
 
 ## Artefatos gerados
 
