@@ -158,6 +158,7 @@ Arquivos principais:
 - [src/data_factory.py](/Users/flaviagaia/Documents/CV_FLAVIA_CODEX/ai-automatic-pharmacy-system/src/data_factory.py)
 - [src/pipeline.py](/Users/flaviagaia/Documents/CV_FLAVIA_CODEX/ai-automatic-pharmacy-system/src/pipeline.py)
 - [src/rag.py](/Users/flaviagaia/Documents/CV_FLAVIA_CODEX/ai-automatic-pharmacy-system/src/rag.py)
+- [src/operations.py](/Users/flaviagaia/Documents/CV_FLAVIA_CODEX/ai-automatic-pharmacy-system/src/operations.py)
 - [tests/test_pipeline.py](/Users/flaviagaia/Documents/CV_FLAVIA_CODEX/ai-automatic-pharmacy-system/tests/test_pipeline.py)
 
 ## Técnicas utilizadas
@@ -241,6 +242,19 @@ O sistema gera:
 - `retrieved_titles`
 - `retrieved_document_ids`
 
+### 8. Simulação operacional reutilizando o motor real
+
+O projeto também expõe uma simulação manual de nova prescrição usando a mesma lógica da fila produtiva.
+
+Isso significa que a demo não usa uma lógica paralela simplificada: ela reaproveita o motor central para testar cenários como:
+
+- alergia conhecida
+- interação com medicação ativa
+- duplicidade terapêutica
+- refill
+- estoque disponível no momento
+- prioridade clínica
+
 ## Arquitetura
 
 ```mermaid
@@ -277,6 +291,8 @@ Na prática, a interface permite:
 - enxergar o **saldo após a demanda pendente**, e não só o estoque bruto
 - simular uma nova prescrição manualmente e receber a mesma avaliação do motor real
 
+Esse ponto é importante porque aproxima a interface de um fluxo real de balcão, revisão farmacêutica ou validação operacional antes da dispensação.
+
 ## Artefatos gerados
 
 - [automatic_pharmacy_report.json](/Users/flaviagaia/Documents/CV_FLAVIA_CODEX/ai-automatic-pharmacy-system/data/processed/automatic_pharmacy_report.json)
@@ -293,6 +309,8 @@ Colunas relevantes do `dispense_queue.csv`:
 - `stock_guidance`
 - `retrieved_titles`
 - `retrieved_document_ids`
+- `available_units`
+- `requested_units`
 
 ## Resultados atuais
 
@@ -308,7 +326,7 @@ Colunas relevantes do `dispense_queue.csv`:
 ```bash
 python3 main.py
 python3 -m unittest discover -s tests -v
-python3 -m py_compile main.py streamlit_app.py src/data_factory.py src/pipeline.py src/rag.py tests/test_pipeline.py
+python3 -m py_compile main.py streamlit_app.py src/data_factory.py src/pipeline.py src/rag.py src/operations.py tests/test_pipeline.py
 streamlit run streamlit_app.py --server.port 8529
 ```
 
@@ -321,6 +339,10 @@ Versão curta:
 Versão mais forte:
 
 > Além do rules engine, eu adicionei uma camada documental RAG-style para apoiar a ação humana. Assim, o sistema não apenas classifica a prescrição, mas também devolve uma orientação pronta para o farmacêutico e para a operação de estoque, com rastreabilidade da justificativa.
+
+Versão mais completa:
+
+> Eu também adicionei uma simulação manual na interface para testar novas prescrições com a mesma lógica do motor real. Isso ajuda a demonstrar como o sistema se comporta em cenários de alergia, interação, duplicidade, estoque insuficiente e prioridade clínica sem depender apenas da base estática de exemplo.
 
 ## Próximos passos possíveis
 
