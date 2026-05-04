@@ -36,6 +36,83 @@ PUBLIC_DATASET_REFERENCE = {
     },
 }
 
+KNOWLEDGE_BASE = [
+    {
+        "document_id": "KB-1001",
+        "title": "Alergia a penicilina e bloqueio automático",
+        "topic": "allergy_safety",
+        "audience": "pharmacist",
+        "content": (
+            "Prescrições com antibiótico beta-lactâmico devem ser bloqueadas quando o paciente tem alergia "
+            "compatível com penicilina. A ação recomendada é segurar a dispensação, registrar o conflito "
+            "e contatar o prescritor para substituição segura."
+        ),
+    },
+    {
+        "document_id": "KB-1002",
+        "title": "Anticoagulante com AINE: risco elevado de sangramento",
+        "topic": "major_interaction",
+        "audience": "pharmacist",
+        "content": (
+            "Warfarina combinada com ibuprofeno aumenta o risco de sangramento. Em nova prescrição ou uso "
+            "não confirmado, a farmácia deve bloquear a liberação automática e escalar o caso para validação "
+            "farmacêutica e contato com a equipe assistencial."
+        ),
+    },
+    {
+        "document_id": "KB-1003",
+        "title": "Tetraciclina em pediatria",
+        "topic": "age_restriction",
+        "audience": "pharmacist",
+        "content": (
+            "Doxiciclina em crianças abaixo da idade mínima exige revisão especializada por risco de alteração "
+            "dentária e adequação terapêutica. A dispensação automática deve ser bloqueada até nova avaliação."
+        ),
+    },
+    {
+        "document_id": "KB-1004",
+        "title": "Duplicidade de estatinas",
+        "topic": "duplicate_therapy",
+        "audience": "pharmacist",
+        "content": (
+            "Simvastatina e atorvastatina na mesma jornada terapêutica sugerem duplicidade de classe. O caso "
+            "deve ir para revisão farmacêutica para confirmar troca intencional, suspensão prévia ou erro de "
+            "prescrição."
+        ),
+    },
+    {
+        "document_id": "KB-1005",
+        "title": "Reposição e ruptura de estoque",
+        "topic": "stock_operations",
+        "audience": "inventory",
+        "content": (
+            "Quando a quantidade disponível fica abaixo do ponto de reposição ou não cobre a demanda, a equipe "
+            "de estoque deve priorizar compra, remanejamento interno ou alinhamento com o farmacêutico sobre "
+            "alternativa terapêutica antes da separação."
+        ),
+    },
+    {
+        "document_id": "KB-1006",
+        "title": "Medicamentos de alto risco",
+        "topic": "high_risk",
+        "audience": "pharmacist",
+        "content": (
+            "Medicamentos de alto risco exigem dupla checagem operacional, confirmação de dose e validação do "
+            "contexto clínico mesmo quando não existe bloqueio absoluto."
+        ),
+    },
+    {
+        "document_id": "KB-1007",
+        "title": "Dispensação automática segura",
+        "topic": "auto_dispense",
+        "audience": "operations",
+        "content": (
+            "Prescrições sem conflito de alergia, sem interação relevante, sem restrição etária e com estoque "
+            "suficiente podem seguir para dispensação automática, mantendo registro da checagem e rastreabilidade."
+        ),
+    },
+]
+
 
 PATIENTS = [
     {"patient_id": "PAT-1001", "name": "Ana Silva", "age": 34, "sex": "F", "care_setting": "ambulatory"},
@@ -265,6 +342,7 @@ def build_sample_dataset(base_dir: Path) -> Dict[str, str]:
     inventory_path = raw_dir / "inventory.csv"
     interactions_path = raw_dir / "drug_interactions.csv"
     prescriptions_path = raw_dir / "prescriptions.csv"
+    knowledge_base_path = raw_dir / "knowledge_base.csv"
     dataset_reference_path = raw_dir / "public_dataset_reference.json"
 
     _write_csv(patients_path, PATIENTS)
@@ -273,6 +351,7 @@ def build_sample_dataset(base_dir: Path) -> Dict[str, str]:
     _write_csv(inventory_path, INVENTORY)
     _write_csv(interactions_path, INTERACTIONS)
     _write_csv(prescriptions_path, PRESCRIPTIONS)
+    _write_csv(knowledge_base_path, KNOWLEDGE_BASE)
     dataset_reference_path.write_text(
         json.dumps(PUBLIC_DATASET_REFERENCE, ensure_ascii=False, indent=2),
         encoding="utf-8",
@@ -286,5 +365,6 @@ def build_sample_dataset(base_dir: Path) -> Dict[str, str]:
         "inventory_path": str(inventory_path),
         "interactions_path": str(interactions_path),
         "prescriptions_path": str(prescriptions_path),
+        "knowledge_base_path": str(knowledge_base_path),
         "dataset_reference_path": str(dataset_reference_path),
     }

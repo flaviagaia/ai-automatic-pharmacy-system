@@ -15,6 +15,7 @@ class AutomaticPharmacyPipelineTestCase(unittest.TestCase):
         dataset_info = build_sample_dataset(self.base_dir)
         self.assertEqual(dataset_info["dataset_source"], "synthea_rxnorm_dailymed_openfda_style_sample")
         self.assertTrue(Path(dataset_info["patients_path"]).exists())
+        self.assertTrue(Path(dataset_info["knowledge_base_path"]).exists())
         self.assertTrue(Path(dataset_info["dataset_reference_path"]).exists())
 
     def test_pipeline_summary_contract(self) -> None:
@@ -28,8 +29,11 @@ class AutomaticPharmacyPipelineTestCase(unittest.TestCase):
         self.assertIn("RX-1001", summary["blocked_prescriptions"])
         self.assertIn("RX-1003", summary["blocked_prescriptions"])
         self.assertIn("RX-1002", summary["pharmacist_review_prescriptions"])
-        self.assertIn("RX-1005", Path(summary["queue_artifact"]).read_text(encoding="utf-8"))
-        self.assertIn("interaction_detected", Path(summary["queue_artifact"]).read_text(encoding="utf-8"))
+        queue_text = Path(summary["queue_artifact"]).read_text(encoding="utf-8")
+        self.assertIn("RX-1005", queue_text)
+        self.assertIn("interaction_detected", queue_text)
+        self.assertIn("rag_guidance", queue_text)
+        self.assertIn("retrieved_titles", queue_text)
 
 
 if __name__ == "__main__":

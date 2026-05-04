@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Dict, List, Tuple
 
 from .data_factory import build_sample_dataset
+from .rag import build_guidance, retrieve_knowledge
 
 
 def _read_csv(path: str) -> List[Dict[str, str]]:
@@ -79,6 +80,7 @@ def run_pipeline(base_dir: Path) -> Dict[str, object]:
     inventory_rows = _read_csv(dataset_info["inventory_path"])
     interaction_rows = _read_csv(dataset_info["interactions_path"])
     prescriptions = _read_csv(dataset_info["prescriptions_path"])
+    knowledge_base_path = dataset_info["knowledge_base_path"]
 
     patient_map = {row["patient_id"]: row for row in patients}
     allergy_map = {row["patient_id"]: row["allergen"] for row in allergies}
@@ -181,6 +183,9 @@ def run_pipeline(base_dir: Path) -> Dict[str, object]:
             "openfda_signal_count": int(drug["openfda_signal_count"]),
             "explanation": explanation,
         }
+        retrieved_docs = retrieve_knowledge(evaluated, knowledge_base_path)
+        rag_outputs = build_guidance(evaluated, retrieved_docs)
+        evaluated.update(rag_outputs)
         evaluated_rows.append(evaluated)
         decision_counter[decision] += 1
         if decision == "BLOCK":
@@ -212,6 +217,7 @@ def run_pipeline(base_dir: Path) -> Dict[str, object]:
         "pharmacist_review_prescriptions": pharmacist_review_prescriptions,
         "top_priority_prescription": evaluated_rows[0]["prescription_id"],
         "top_priority_decision": evaluated_rows[0]["decision"],
+        "knowledge_base_path": knowledge_base_path,
         "report_artifact": str(report_path),
         "queue_artifact": str(queue_path),
     }
