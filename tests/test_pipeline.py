@@ -27,7 +27,9 @@ class AutomaticPharmacyPipelineTestCase(unittest.TestCase):
         self.assertEqual(summary["top_priority_decision"], "BLOCK")
         self.assertIn("RX-1001", summary["blocked_prescriptions"])
         self.assertIn("RX-1003", summary["blocked_prescriptions"])
+        self.assertIn("RX-1002", summary["pharmacist_review_prescriptions"])
         self.assertIn("RX-1005", Path(summary["queue_artifact"]).read_text(encoding="utf-8"))
+        self.assertIn("interaction_detected", Path(summary["queue_artifact"]).read_text(encoding="utf-8"))
 
 
 if __name__ == "__main__":

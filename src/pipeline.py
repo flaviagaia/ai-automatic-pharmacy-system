@@ -170,6 +170,7 @@ def run_pipeline(base_dir: Path) -> Dict[str, object]:
             "risk_score": risk_score,
             "allergy_conflict": str(allergy_conflict).lower(),
             "age_restriction": str(age_restriction).lower(),
+            "interaction_detected": str(interaction_detected).lower(),
             "major_interaction": str(major_interaction).lower(),
             "duplicate_therapy": str(duplicate_therapy).lower(),
             "stock_shortage": str(stock_shortage).lower(),

@@ -1,1 +1,1 @@
-# Standard-library only project.
+streamlit>=1.45,<2.0
