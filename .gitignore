@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+data/raw/*.csv
+data/raw/public_dataset_reference.json
+data/processed/*.json
+data/processed/*.csv
