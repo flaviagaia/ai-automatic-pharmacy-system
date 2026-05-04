@@ -262,6 +262,7 @@ Ela está organizada em três abas:
 - `Triagem farmacêutica`
 - `Estoque e reposição`
 - `Resumo operacional`
+- `Simulação manual`
 
 Na prática, a interface permite:
 
@@ -274,6 +275,7 @@ Na prática, a interface permite:
 - acompanhar itens de estoque críticos
 - identificar quantas prescrições estão travadas por item
 - enxergar o **saldo após a demanda pendente**, e não só o estoque bruto
+- simular uma nova prescrição manualmente e receber a mesma avaliação do motor real
 
 ## Artefatos gerados
 

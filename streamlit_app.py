@@ -9,7 +9,7 @@ import streamlit as st
 
 from src.data_factory import build_sample_dataset
 from src.operations import inventory_status
-from src.pipeline import run_pipeline
+from src.pipeline import run_pipeline, simulate_prescription
 
 APP_TITLE = "Central de Farmácia com IA"
 APP_SUBTITLE = (
@@ -150,10 +150,18 @@ def _load_app_state(base_dir: Path) -> tuple[Dict[str, object], List[Dict[str, s
     return summary, queue_rows, inventory_rows
 
 
+def _load_reference_rows(base_dir: Path) -> tuple[List[Dict[str, str]], List[Dict[str, str]]]:
+    dataset_info = build_sample_dataset(base_dir)
+    formulary_rows = _read_csv(dataset_info["formulary_path"])
+    inventory_rows = _read_csv(dataset_info["inventory_path"])
+    return formulary_rows, inventory_rows
+
+
 st.set_page_config(page_title=APP_TITLE, page_icon="💊", layout="wide")
 
 base_dir = Path(__file__).resolve().parent
 summary, queue_rows, inventory_rows = _load_app_state(base_dir)
+formulary_rows, inventory_reference_rows = _load_reference_rows(base_dir)
 
 st.title(APP_TITLE)
 st.caption(APP_SUBTITLE)
@@ -182,7 +190,7 @@ with metric_c:
 with metric_d:
     st.metric("Dispensações automáticas", int(summary["auto_dispense_count"]))
 
-tabs = st.tabs(["Triagem farmacêutica", "Estoque e reposição", "Resumo operacional"])
+tabs = st.tabs(["Triagem farmacêutica", "Estoque e reposição", "Resumo operacional", "Simulação manual"])
 
 with tabs[0]:
     st.subheader("Fila clínica priorizada")
@@ -368,3 +376,109 @@ with tabs[2]:
             "Além das regras, a fila agora consulta uma base documental local para devolver orientação "
             "mais acionável ao farmacêutico e ao time de estoque."
         )
+
+with tabs[3]:
+    st.subheader("Simular nova prescrição")
+    st.caption(
+        "Use este simulador para testar uma nova prescrição com os mesmos critérios do motor real de triagem."
+    )
+
+    formulary_names = [row["drug_name"] for row in formulary_rows]
+    inventory_by_drug = {row["drug_name"]: int(row["available_units"]) for row in inventory_reference_rows}
+    allergy_options = sorted(
+        {
+            row["allergy_group"]
+            for row in formulary_rows
+            if row["allergy_group"] != "none"
+        }
+        | {"none"}
+    )
+
+    with st.form("simulation_form"):
+        sim_col_a, sim_col_b = st.columns(2)
+        with sim_col_a:
+            patient_name = st.text_input("Nome do paciente", value="Paciente de teste")
+            age = st.number_input("Idade", min_value=0, max_value=120, value=45, step=1)
+            allergy_group = st.selectbox("Alergia conhecida", options=allergy_options, index=0)
+            active_medications = st.multiselect(
+                "Medicamentos ativos atuais",
+                options=formulary_names,
+                default=[],
+                help="Selecione o que o paciente já está usando para simular interação ou duplicidade.",
+            )
+        with sim_col_b:
+            drug_name = st.selectbox("Medicamento da nova prescrição", options=formulary_names)
+            quantity = st.number_input("Quantidade solicitada", min_value=1, max_value=180, value=30, step=1)
+            refill_number = st.number_input("Número do refill", min_value=0, max_value=12, value=0, step=1)
+            clinical_priority = st.selectbox(
+                "Prioridade clínica",
+                options=["routine", "high"],
+                format_func=lambda value: "Alta" if value == "high" else "Rotina",
+            )
+            available_units_override = st.number_input(
+                "Estoque disponível para este item",
+                min_value=0,
+                max_value=999,
+                value=inventory_by_drug[drug_name],
+                step=1,
+            )
+
+        simulate_clicked = st.form_submit_button("Simular decisão", type="primary")
+
+    if simulate_clicked:
+        simulated = simulate_prescription(
+            base_dir=base_dir,
+            patient_name=patient_name,
+            age=int(age),
+            allergy_group=allergy_group,
+            active_medications=active_medications,
+            drug_name=drug_name,
+            quantity=int(quantity),
+            refill_number=int(refill_number),
+            clinical_priority=clinical_priority,
+            available_units_override=int(available_units_override),
+        )
+
+        sim_a, sim_b, sim_c = st.columns(3)
+        with sim_a:
+            _render_status_card(
+                "Decisão simulada",
+                _decision_label(str(simulated["decision"])),
+                _next_action({key: str(value) for key, value in simulated.items()}),
+                str(simulated["decision"]),
+            )
+        with sim_b:
+            _render_status_card(
+                "Prioridade",
+                _priority_label(str(simulated["queue_priority"])),
+                f"Score de risco {simulated['risk_score']}",
+                str(simulated["decision"]),
+            )
+        with sim_c:
+            _render_status_card(
+                "Estoque usado na simulação",
+                str(simulated["available_units"]),
+                f"Solicitado {simulated['requested_units']}",
+                str(simulated["decision"]),
+            )
+
+        sim_message_fn = getattr(st, _status_tone(str(simulated["decision"])), st.info)
+        sim_message_fn(_next_action({key: str(value) for key, value in simulated.items()}))
+
+        sim_left, sim_right = st.columns([1.3, 1])
+        with sim_left:
+            st.markdown("**Orientação pronta para ação**")
+            st.write(simulated["rag_guidance"])
+            st.markdown("**Motivo clínico resumido**")
+            st.write(simulated["explanation"])
+            st.markdown("**Gatilhos identificados**")
+            for reason in _risk_reasons({key: str(value) for key, value in simulated.items()}):
+                st.caption(f"• {reason}")
+        with sim_right:
+            st.markdown("**Dados usados na simulação**")
+            st.write(f"Paciente: `{patient_name}`")
+            st.write(f"Idade: `{age}`")
+            st.write(f"Alergia: `{allergy_group}`")
+            st.write(f"Medicamentos ativos: `{', '.join(active_medications) if active_medications else 'Nenhum'}`")
+            st.write(f"Base documental usada: `{simulated['retrieved_titles']}`")
+            st.write(f"Orientação de estoque: `{simulated['stock_guidance']}`")

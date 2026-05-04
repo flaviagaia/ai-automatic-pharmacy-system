@@ -5,7 +5,7 @@ from pathlib import Path
 
 from src.data_factory import build_sample_dataset
 from src.operations import inventory_status
-from src.pipeline import run_pipeline
+from src.pipeline import run_pipeline, simulate_prescription
 
 
 class AutomaticPharmacyPipelineTestCase(unittest.TestCase):
@@ -40,6 +40,39 @@ class AutomaticPharmacyPipelineTestCase(unittest.TestCase):
         self.assertEqual(inventory_status(available_units=20, reorder_point=10, pending_units=12), "Repor agora")
         self.assertEqual(inventory_status(available_units=20, reorder_point=10, pending_units=7), "Monitorar")
         self.assertEqual(inventory_status(available_units=40, reorder_point=10, pending_units=5), "Estável")
+
+    def test_manual_simulation_blocks_allergy_conflict(self) -> None:
+        simulated = simulate_prescription(
+            base_dir=self.base_dir,
+            patient_name="Teste Alergia",
+            age=30,
+            allergy_group="penicillin",
+            active_medications=[],
+            drug_name="amoxicillin 500 mg capsule",
+            quantity=21,
+            refill_number=0,
+            clinical_priority="routine",
+            available_units_override=120,
+        )
+        self.assertEqual(simulated["decision"], "BLOCK")
+        self.assertEqual(simulated["allergy_conflict"], "true")
+        self.assertIn("Alergia a penicilina", simulated["retrieved_titles"])
+
+    def test_manual_simulation_detects_duplicate_therapy(self) -> None:
+        simulated = simulate_prescription(
+            base_dir=self.base_dir,
+            patient_name="Teste Estatina",
+            age=56,
+            allergy_group="none",
+            active_medications=["simvastatin 20 mg tablet"],
+            drug_name="atorvastatin 20 mg tablet",
+            quantity=30,
+            refill_number=0,
+            clinical_priority="routine",
+            available_units_override=80,
+        )
+        self.assertEqual(simulated["decision"], "PHARMACIST_REVIEW")
+        self.assertEqual(simulated["duplicate_therapy"], "true")
 
 
 if __name__ == "__main__":
