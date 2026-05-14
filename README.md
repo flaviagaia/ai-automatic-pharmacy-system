@@ -7,7 +7,7 @@
 - ajudar o farmacêutico a decidir o que precisa de intervenção humana;
 - ajudar a operação a enxergar quais itens do estoque travam a dispensação.
 
-![Demo da central de farmácia com IA](/Users/flaviagaia/Documents/CV_FLAVIA_CODEX/ai-automatic-pharmacy-system/assets/farmacia_ia.jpg)
+![Demo da central de farmácia com IA](assets/farmacia_ia.jpg)
 
 Em vez de tratar a automação como simples separação de caixas, o projeto assume que uma farmácia inteligente precisa tomar uma decisão segura, explicável e operacionalmente útil antes de liberar um item.
 
@@ -65,18 +65,6 @@ Por fim, o projeto monta uma orientação final legível para o time:
 - o que o estoque deve fazer
 - quais documentos sustentaram a orientação
 
-## Storytelling do básico ao técnico
-
-Uma farmácia automática não pode ser só rápida. Ela precisa ser segura, rastreável e útil para quem opera a fila real.
-
-Por isso, este MVP foi pensado para transformar uma prescrição em uma **decisão operacional explicável**:
-
-1. recebe pacientes, alergias, prescrições, formulário farmacêutico, interações e estoque;
-2. normaliza o medicamento em uma camada `RxNorm-style`;
-3. cruza warning farmacêutico `DailyMed-style` e sinais públicos `openFDA-style`;
-4. decide com regras clínicas e operacionais;
-5. consulta uma base documental local para enriquecer a orientação final;
-6. entrega uma fila pronta para triagem, revisão e ação de estoque.
 
 ## Bases públicas escolhidas
 
@@ -153,13 +141,13 @@ Bibliotecas da standard library usadas no núcleo:
 
 Arquivos principais:
 
-- [main.py](/Users/flaviagaia/Documents/CV_FLAVIA_CODEX/ai-automatic-pharmacy-system/main.py)
-- [streamlit_app.py](/Users/flaviagaia/Documents/CV_FLAVIA_CODEX/ai-automatic-pharmacy-system/streamlit_app.py)
-- [src/data_factory.py](/Users/flaviagaia/Documents/CV_FLAVIA_CODEX/ai-automatic-pharmacy-system/src/data_factory.py)
-- [src/pipeline.py](/Users/flaviagaia/Documents/CV_FLAVIA_CODEX/ai-automatic-pharmacy-system/src/pipeline.py)
-- [src/rag.py](/Users/flaviagaia/Documents/CV_FLAVIA_CODEX/ai-automatic-pharmacy-system/src/rag.py)
-- [src/operations.py](/Users/flaviagaia/Documents/CV_FLAVIA_CODEX/ai-automatic-pharmacy-system/src/operations.py)
-- [tests/test_pipeline.py](/Users/flaviagaia/Documents/CV_FLAVIA_CODEX/ai-automatic-pharmacy-system/tests/test_pipeline.py)
+- [main.py](main.py)
+- [streamlit_app.py](streamlit_app.py)
+- [src/data_factory.py](src/data_factory.py)
+- [src/pipeline.py](src/pipeline.py)
+- [src/rag.py](src/rag.py)
+- [src/operations.py](src/operations.py)
+- [tests/test_pipeline.py](tests/test_pipeline.py)
 
 ## Técnicas utilizadas
 
@@ -295,8 +283,8 @@ Esse ponto é importante porque aproxima a interface de um fluxo real de balcão
 
 ## Artefatos gerados
 
-- [automatic_pharmacy_report.json](/Users/flaviagaia/Documents/CV_FLAVIA_CODEX/ai-automatic-pharmacy-system/data/processed/automatic_pharmacy_report.json)
-- [dispense_queue.csv](/Users/flaviagaia/Documents/CV_FLAVIA_CODEX/ai-automatic-pharmacy-system/data/processed/dispense_queue.csv)
+- [automatic_pharmacy_report.json](data/processed/automatic_pharmacy_report.json)
+- [dispense_queue.csv](data/processed/dispense_queue.csv)
 
 Colunas relevantes do `dispense_queue.csv`:
 
@@ -330,19 +318,6 @@ python3 -m py_compile main.py streamlit_app.py src/data_factory.py src/pipeline.
 streamlit run streamlit_app.py --server.port 8529
 ```
 
-## Como explicar em entrevista
-
-Versão curta:
-
-> Eu construí um sistema de farmácia automática com IA explicável que combina dados sintéticos inspirados em Synthea, normalização farmacêutica no estilo RxNorm, warnings no estilo DailyMed, sinais de risco inspirados em openFDA e um motor de regras clínicas para decidir se uma prescrição pode ser dispensada automaticamente, precisa de revisão farmacêutica ou deve ser bloqueada.
-
-Versão mais forte:
-
-> Além do rules engine, eu adicionei uma camada documental RAG-style para apoiar a ação humana. Assim, o sistema não apenas classifica a prescrição, mas também devolve uma orientação pronta para o farmacêutico e para a operação de estoque, com rastreabilidade da justificativa.
-
-Versão mais completa:
-
-> Eu também adicionei uma simulação manual na interface para testar novas prescrições com a mesma lógica do motor real. Isso ajuda a demonstrar como o sistema se comporta em cenários de alergia, interação, duplicidade, estoque insuficiente e prioridade clínica sem depender apenas da base estática de exemplo.
 
 ## Próximos passos possíveis
 
